@@ -1,0 +1,764 @@
+setwd("C:/Users/barbo/OneDrive/Namizje/UI")
+podatki <- read.csv("dataSem1.txt", stringsAsFactors = T) #prebral datoteko
+summary(podatki) #pogledal vsebino
+
+podatki$datum <- as.Date(podatki$datum) #pretvoril prvotni datum iz 2016-01-01 zapisa v zapis ki je Rju bolj prijazen(da se R zaveda da je to stolpec z datumi)
+summary(podatki)
+#sel <- podatki$stavba==1 & podatki$ura==11 #naredil bom graf za stavbo 1 ob meritvi 11h
+#plot(podatki$datum[sel], podatki$poraba[sel], type="l")
+
+################ GRAFI/VIZUALIZACIJA ######################
+##graf meritev po mesecih####
+podatki <- read.table(file="dataSem1.txt", sep=",", header = TRUE)
+podatki$datum <- as.Date(podatki$datum)
+
+sel <- podatki$datum >= "2016-1-1" & podatki$datum < "2016-2-1"
+januar <- podatki[sel,]
+januar <- nrow(januar)
+
+sel <- podatki$datum >= "2016-2-1" & podatki$datum < "2016-3-1"
+februar <- podatki[sel,]
+februar <- nrow(februar)
+
+sel <- podatki$datum >= "2016-3-1" & podatki$datum < "2016-4-1"
+marec <- podatki[sel,]
+marec <- nrow(marec)
+
+sel <- podatki$datum >= "2016-4-1" & podatki$datum < "2016-5-1"
+april <- podatki[sel,]
+april <- nrow(april)
+
+sel <- podatki$datum >= "2016-5-1" & podatki$datum < "2016-6-1"
+maj <- podatki[sel,]
+maj <- nrow(maj)
+
+sel <- podatki$datum >= "2016-6-1" & podatki$datum < "2016-7-1"
+junij <- podatki[sel,]
+junij  <- nrow(junij)
+
+sel <- podatki$datum >= "2016-7-1" & podatki$datum < "2016-8-1"
+julij <- podatki[sel,]
+julij <- nrow(julij)
+
+sel <- podatki$datum >= "2016-8-1" & podatki$datum < "2016-9-1"
+avgust <- podatki[sel,]
+avgust <- nrow(avgust)
+
+sel <- podatki$datum >= "2016-9-1" & podatki$datum < "2016-10-1"
+september <- podatki[sel,]
+september <- nrow(september)
+
+sel <- podatki$datum >= "2016-10-1" & podatki$datum < "2016-11-1"
+oktober <- podatki[sel,]
+oktober <- nrow(oktober)
+
+sel <- podatki$datum >= "2016-11-1" & podatki$datum < "2016-12-1"
+november <- podatki[sel,]
+november <- nrow(november)
+
+sel <- podatki$datum >= "2016-12-1" & podatki$datum < "2017-1-1"
+december <- podatki[sel,]
+december <- nrow(december)
+
+x <- c(januar,februar,marec,april,maj,junij,julij,avgust,september,oktober,november,december)
+
+
+
+prikaz <- data.frame(
+  Mesec =c("jan","feb","mar","apr","maj","jun","jul","avg","sep","okt","nov","dec"),
+  St_meritev = x
+)
+library(ggplot2)
+
+prikaz$Mesec <- factor(prikaz$Mesec,levels = prikaz$Mesec)
+ggplot(prikaz, aes(x=Mesec, y=St_meritev))  +
+  geom_bar(stat = "identity")
+
+
+########graf ki nam pokaže skupno porabo in površino za posamezno regijo (desna pika je zahod, leva vzhod)###########
+podatki <- read.csv("dataSem1.txt" , stringsAsFactors = T) #prebral datoteko
+podatki$datum <- as.Date(podatki$datum)
+
+zahod <- podatki$regija=="zahodna"
+vzhod <- podatki$regija=="vzhodna"
+
+sumV <- sum(podatki$povrsina[vzhod])
+sumZ <- sum(podatki$povrsina[!vzhod])
+
+porV <- sum(podatki$poraba[vzhod])
+porZ <- sum(podatki$poraba[!vzhod])
+
+sumV<-sumV/1000000
+sumZ<-sumZ/1000000
+
+porZ <- round(porZ/1000)
+porV <- round(porV/1000)
+
+prikaz <- data.frame(
+  Povrsina=c(sumV,sumZ),
+  Poraba=c(porV,porZ)
+)
+
+plot(prikaz$Povrsina,prikaz$Poraba,ylim = c(10000,20000),xlim=c(500,1500),ylab="Poraba(MWh)",xlab="Povrsina (sq(km))")
+
+##############graf porabe ob 11 glede na regijo############
+selv <- podatki$regija=="vzhodna" & podatki$ura==11 
+selz <- podatki$regija=="zahodna" & podatki$ura==11
+plot(podatki$datum[selv], podatki$poraba[selv], type="l")
+plot(podatki$datum[selz], podatki$poraba[selz], type="l")
+######## graf celotne porabe glede na regijo##############
+imena <- c("vzhodna","zahodna")
+tab <- table(podatki$regija)
+valu <- c(tab[1])
+valu2 <- c(tab[2])
+vred <- c(valu,valu2)
+proc <- round(vred/sum(vred)*100)
+imena <- paste(imena,"\n     ")
+imena <- paste(imena,vred," (",proc,"%)", sep="")
+pie(vred,imena)
+############# primerjanje porabe med regijama#############
+#summary(podatki$poraba[podatki$regija=="zahodna"])
+#summary(podatki$poraba[podatki$regija=="vzhodna"])
+
+#########skupna poraba glede na regiji##########
+#skupnaZ<-sum(podatki$poraba[podatki$regija=="zahodna"])
+#skupnaV<-sum(podatki$poraba[podatki$regija=="vzhodna"])
+
+############# delitev glede na letni čas###############
+pomlad <- podatki$datum >= "2016-3-20" & podatki$datum < "2016-6-20"
+poletje <- podatki$datum >= "2016-6-20" & podatki$datum < "2016-9-22"
+jesen <- podatki$datum >= "2016-9-22" & podatki$datum < "2016-12-21"
+
+poletjex <- round(sum(podatki$poraba[poletje])/1000)
+pomladx <- round(sum(podatki$poraba[pomlad])/1000)
+jesenx <- round(sum(podatki$poraba[jesen])/1000)
+zima1 <- podatki$datum >= "2015-12-31" & podatki$datum < "2016-3-20"
+zima2 <- podatki$datum >= "2016-12-21"
+zimay1 <- sum(podatki$poraba[zima1])
+zimay2 <- sum(podatki$poraba[zima2])
+zimax <- round(sum(zimay1,zimay2)/1000)
+
+prikaz <- data.frame(
+  Letni_cas=c("pomlad","poletje","jesen","zima") ,
+  Poraba=c(pomladx,poletjex,jesenx,zimax)
+)
+library(ggplot2)
+
+ggplot(prikaz, aes(x=Letni_cas, y=Poraba)) + 
+  geom_bar(stat = "identity")
+
+#################graf porabe(regija+letni čas)###############################
+#podatki <- read.table(file="dataSem1.txt", sep=",", header = TRUE)
+podatki <- read.csv("dataSem1.txt", stringsAsFactors = T)
+podatki$datum <- as.Date(podatki$datum)
+library(ggplot2)
+
+pomladZ <- podatki$datum >= "2016-3-20" & podatki$datum < "2016-6-20" & podatki$regija=="zahodna"
+pomladV <- podatki$datum >= "2016-3-20" & podatki$datum < "2016-6-20" & podatki$regija=="vzhodna"
+pomladxZ <- round(sum(podatki$poraba[pomladZ])/1000)
+pomladxV <- round(sum(podatki$poraba[pomladV])/1000)
+
+poletjeZ <- podatki$datum >= "2016-6-20" & podatki$datum < "2016-9-22" & podatki$regija=="zahodna"
+poletjeV <- podatki$datum >= "2016-6-20" & podatki$datum < "2016-9-22" & podatki$regija=="vzhodna"
+poletjexZ  <- round(sum(podatki$poraba[poletjeZ ])/1000)
+poletjexV <- round(sum(podatki$poraba[poletjeV])/1000)
+
+jesenZ <- podatki$datum >= "2016-9-22" & podatki$datum < "2016-12-21" & podatki$regija=="zahodna"
+jesenV <- podatki$datum >= "2016-9-22" & podatki$datum < "2016-12-21" & podatki$regija=="vzhodna"
+jesenxZ  <- round(sum(podatki$poraba[jesenZ])/1000)
+jesenxV <- round(sum(podatki$poraba[jesenV])/1000)
+
+zima1 <- podatki$datum >= "2015-12-31" & podatki$datum < "2016-3-20"
+zima2 <- podatki$datum >= "2016-12-21"
+zimay1 <- sum(podatki$poraba[zima1])
+zimay2 <- sum(podatki$poraba[zima2])
+zimax <- sum(zimay1,zimay2)
+
+
+zima1V <- podatki$datum >= "2015-12-31" & podatki$datum < "2016-3-20" & podatki$regija=="vzhodna"
+zima2V <- podatki$datum >= "2016-12-21" & podatki$regija=="vzhodna"
+zimay1V <- sum(podatki$poraba[zima1V])
+zimay2V <- sum(podatki$poraba[zima2V])
+zimaxV <- round(sum(zimay1V,zimay2V)/1000)
+
+zima1Z <- podatki$datum >= "2015-12-31" & podatki$datum < "2016-3-20" & podatki$regija=="zahodna"
+zima2Z <- podatki$datum >= "2016-12-21" & podatki$regija=="zahodna"
+zimay1Z <- sum(podatki$poraba[zima1Z])
+zimay2Z <- sum(podatki$poraba[zima2Z])
+zimaxZ <- round(sum(zimay1Z,zimay2Z)/1000)
+
+
+prikaz <- data.frame(
+  Letni_cas=c("PomladV","PomladZ","PoletjeV","PoletjeZ","JesenV","JesenZ","ZimaV","ZimaZ") ,     
+  Poraba=c(pomladxV,pomladxZ,poletjexV,poletjexZ,jesenxV,jesenxZ,zimaxV,zimaxZ),
+  color_code=c("#FA2F1E", "#2051FA", "#FA2F1E","#2051FA","#FA2F1E", "#2051FA", "#FA2F1E","#2051FA"),
+  Legenda=c("Vzhodna","Zahodna"),
+  pokaz=c("Letni cas","Poraba(MWh)"))
+
+prikaz$Letni_cas <- factor(prikaz$Letni_cas,levels = prikaz$Letni_cas)
+ggplot(prikaz, aes(x=Letni_cas, y=Poraba,fill=Legenda))  +
+  geom_bar(stat = "identity")+
+  scale_color_identity(guide = "legend", labels = prikaz$Legenda) +
+  labs(color = "Legenda")+
+  labs(x = "Letni čas")+
+  labs(y = "Poraba (mWh)")
+
+
+
+
+##########################################################
+##########2.Ocenjevanje in konstrukcija atributov#########
+##########################################################
+celotni_podatki <- read.csv("dataSem1.txt", stringsAsFactors = T)
+celotni_podatki$datum <- as.Date(celotni_podatki$datum)
+#ocenjevanje s pomočjo ReliefFequalK, da vidim kateri so najbloj uporabni in kateri najmanj, potem bom poskušal iz najmanj uporabnih izpeljati nove in jim zvišal mesto na lestvici uporabnosti. 
+library(CORElearn)
+set.seed(0)
+sort(attrEval(norm_poraba ~ ., celotni_podatki, "ReliefFequalK"), decreasing = TRUE)
+
+#dodajanje atributa LETNI CAS
+
+celotni_podatki$letni_cas[celotni_podatki$datum >= "2016-3-20" & celotni_podatki$datum < "2016-6-20"] <- "Pomlad"
+celotni_podatki$letni_cas[celotni_podatki$datum >= "2016-6-20" & celotni_podatki$datum < "2016-9-22"] <- "Poletje"
+celotni_podatki$letni_cas[celotni_podatki$datum >= "2016-9-22" & celotni_podatki$datum < "2016-12-21"] <- "Jesen"
+celotni_podatki$letni_cas[celotni_podatki$datum >= "2015-12-31" & celotni_podatki$datum < "2016-3-20"] <- "Zima"
+celotni_podatki$letni_cas[celotni_podatki$datum >= "2016-12-21"] <- "Zima"
+celotni_podatki$letni_cas <- as.factor(celotni_podatki$letni_cas)
+
+#dodajanje atributa VIKEND
+#install.packages("chron")
+library(chron)
+celotni_podatki$vikend[is.weekend(celotni_podatki$datum)] <- "vikend"
+celotni_podatki$vikend[is.na(celotni_podatki$vikend)] <- "danvted"
+celotni_podatki$vikend <-as.factor(celotni_podatki$vikend)
+
+#dodajanje atributa MESEC
+celotni_podatki$mesec <- as.numeric(format(celotni_podatki$datum, "%m"))
+
+#dodajanje atributa PrejDan (porabe prejšnjega dneva ob istem času)
+
+
+
+for(i in 1:nrow(celotni_podatki)){
+  
+  
+  currentD <- as.Date(celotni_podatki$datum[i])-1
+  currentU <- celotni_podatki$ura[i]
+  #print(currentD)
+  currentB <- celotni_podatki$stavba[i]
+  vred <- celotni_podatki$datum == currentD & celotni_podatki$ura == currentU & celotni_podatki$stavba == currentB
+  vrednost<- celotni_podatki$poraba[vred]
+  if (length(vrednost)==0){
+    vrednost<-0
+  }
+  
+  
+  celotni_podatki$PrejDan[i]<-vrednost
+  
+}
+remove(currentB,currentD,currentU)
+
+############################
+######3.MODELIRANJE############
+##############################
+#klasifikacija
+
+podatki <- celotni_podatki
+
+podatki$poraba<-NULL #ker je poraba ciljna spremenljivka in je nesmemo imeti, lahko imamo le norm_poraba
+podatki$datum<-NULL
+
+
+
+# OCENA 9 #
+sel <- podatki$regija=="vzhodna"
+train <- podatki[sel,]
+
+sel <- podatki$regija=="zahodna"
+test <- podatki[sel,]
+
+
+# OCENA 6 #
+#set.seed(0)
+#sel<-sample(1:nrow(podatki), size=as.integer(nrow(podatki)*0.7), replace=F)
+#train<-podatki[sel,]
+#test<-podatki[-sel,]
+
+
+#VEČINSKI KLASIFIKATOR###
+table(test$norm_poraba) #da sem ugotovil kater je večinski razred(SREDNJA)
+vec_klas<-sum(test$norm_poraba=="SREDNJA") / length(test$norm_poraba) #delež pravilno klasificiranih(to je klasifikacijska točnost)
+#####ODLOČITVENO DREVO#########
+library(rpart)
+
+dt<- rpart(norm_poraba ~ ., data = train)
+observed<-test$norm_poraba
+predicted <- predict(dt, test, type = "class")
+tab<-table(observed,predicted)
+sum(diag(tab)) / sum(tab) #vecja vrednost kot vecinski klasifikator
+#funkcija#
+
+CA <- function(obs, pred)
+{
+  tab <- table(obs, pred)
+  
+  sum(diag(tab)) / sum(tab)
+}
+CA(observed, predicted)
+####
+
+library(CORElearn)
+for (m in c("tree", "rf", "knn", "bayes"))
+{
+  obj <- CoreModel(norm_poraba ~ ., train, model=m)
+  
+  predicted <- predict(obj, test, type="class")
+  tab <- table(observed, predicted)
+  vec_klas <- c(vec_klas, sum(diag(tab))/sum(tab))
+}
+
+names(vec_klas) <- c("VecKlas", "tree", "randf", "knn", "bayes")
+barplot(vec_klas, xlab="models", ylab="Classification accuracy", main="Results",ylim=c(0,1))
+
+#
+# Glasovanje
+#
+
+set.seed(0)
+sel<-sample(1:nrow(podatki), size=as.integer(nrow(podatki)*0.7), replace=F)
+train<-podatki[sel,]
+test<-podatki[-sel,]
+
+library(CORElearn)
+modelDT <- CoreModel(norm_poraba ~ ., train, model="tree")
+modelNB <- CoreModel(norm_poraba ~ ., train, model="bayes")
+modelKNN <- CoreModel(norm_poraba ~ ., train, model="knn", kInNN = 5)
+
+predDT <- predict(modelDT, test, type = "class")
+caDT <- CA(test$norm_poraba, predDT)
+caDT
+
+predNB <- predict(modelNB, test, type="class")
+caNB <- CA(test$norm_poraba, predNB)
+caNB
+
+predKNN <- predict(modelKNN, test, type="class")
+caKNN <- CA(test$norm_poraba, predKNN)
+caKNN
+
+# zdruzimo napovedi posameznih modelov v en podatkovni okvir
+pred <- data.frame(predDT, predNB, predKNN)
+
+head(pred)
+
+# testni primer klasificiramo v razred z najvec glasovi
+voting <- function(predictions)
+{
+  res <- vector()
+  
+  for (i in 1 : nrow(predictions))  	
+  {
+    vec <- unlist(predictions[i,])
+    res[i] <- names(which.max(table(vec)))
+  }
+  
+  res
+}
+
+prednorm_poraba <- voting(pred)
+head(prednorm_poraba)
+
+predicted <- factor(prednorm_poraba, levels=levels(train$norm_poraba))
+head(predicted)
+
+CA(test$norm_poraba, predicted)
+
+
+
+
+#
+# Utezeno glasovanje
+#
+
+predDT.prob <- predict(modelDT, test, type="prob")
+predNB.prob <- predict(modelNB, test, type="prob")
+predKNN.prob <- predict(modelKNN, test, type="prob")
+
+# sestejemo napovedane verjetnosti s strani razlicnih modelov
+prednorm_poraba <- predDT.prob + predNB.prob + predKNN.prob
+
+head(prednorm_poraba)
+
+head(max.col(prednorm_poraba))
+
+# izberemo razred z najvecjo verjetnostjo
+predClass <- colnames(prednorm_poraba)[max.col(prednorm_poraba)]
+predicted <- factor(predClass, levels(podatki$norm_poraba))
+head(predicted)
+
+CA(test$norm_poraba, predicted)
+
+#
+# Bagging
+#
+
+n <- nrow(train)
+m <- 30
+
+models <- list()
+for (i in 1:m)
+{
+  # nakljucno izberemo n primerov z vracanjem
+  sel <- sample(1:n, n, replace = T)
+  bootstrap <- train[sel,]
+  models[[i]] <- CoreModel(norm_poraba ~ ., bootstrap, model="tree", minNodeWeightTree=1)
+}
+
+pred <- NULL
+for (i in 1:m)
+  pred <- cbind(pred, as.character(predict(models[[i]], test, type="class")))
+
+head(pred)
+
+prednorm_poraba <- voting(pred)
+predicted <- factor(prednorm_poraba, levels=levels(train$norm_poraba))
+CA(test$norm_poraba, predicted)
+
+#install.packages("ipred")
+library(ipred)
+
+bag <- bagging(norm_poraba ~ ., train, nbagg=30)
+predicted <- predict(bag, test, type="class")
+CA(test$norm_poraba, predicted)
+
+
+
+######################
+#regresija
+#####################
+podatki <- celotni_podatki
+
+podatki$norm_poraba<-NULL
+podatki$datum<-NULL
+
+# OCENA 9 #
+sel <- podatki$regija=="vzhodna"
+train <- podatki[sel,]
+
+sel <- podatki$regija=="zahodna"
+test <- podatki[sel,]
+
+# OCENA 6 #
+#set.seed(0)
+#sel<- sample(1:nrow(podatki), size=as.integer(nrow(podatki)*0.7),replace = F)
+#train<-podatki[sel,]
+#test<-podatki[-sel,]
+
+
+
+##########Mere za ocenjevanje ucenja v regresiji
+#srednja absolutna napaka
+mae <- function(obs, pred)
+{
+  mean(abs(obs - pred))
+}
+
+# srednja kvadratna napaka
+mse <- function(obs, pred)
+{
+  mean((obs - pred)^2)
+}
+
+# Trivialni model vedno napove povprecno vrednost ciljne spremenljivke
+#
+
+meanVal <- mean(train$poraba)
+meanVal
+
+predTrivial <- rep(meanVal, nrow(test))
+observed<-test$poraba
+
+mae(observed, predTrivial)
+mse(observed, predTrivial)
+
+########## Relativne mere ocenjujejo model v primerjavi s trivialno predikcijo
+rmae<-function(observed, predicted, mean.val){  #rmae je mera za ocenjevanje učenja v regresiji
+  sum(abs(observed-predicted))/sum(abs(observed-mean.val))
+}
+
+rmse <- function(obs, pred, mean.val) #rmse relativna srednja kvadratna napaka
+{  
+  sum((obs - pred)^2)/sum((obs - mean.val)^2)
+}
+
+#linearni model
+#lm.model<-lm(poraba~.,data=train)
+#linear_predicted<-predict(lm.model, test)
+#head(linear_predicted)
+
+observed<-test$poraba
+head(observed)
+
+#rmae(observed, linear_predicted, mean(train$poraba))
+#mae(observed, linear_predicted)
+#rmse(observed, linear_predicted, mean(train$poraba))
+#mse(observed, linear_predicted)
+
+#regresijsko drevo
+library(rpart)
+library(rpart.plot)
+rt.model<-rpart(poraba~.,data=train)
+rpart.plot(rt.model)
+reg_tree_predicted<-predict(rt.model, test)
+rmae(observed, reg_tree_predicted, mean(train$poraba))
+mae(observed, reg_tree_predicted)
+rmse(observed, reg_tree_predicted, mean(train$poraba))
+mse(observed, reg_tree_predicted)
+
+#random forest
+library(randomForest)
+rf.model<-randomForest(poraba~., train, ntree=10, norm.votes=FALSE)
+rf.model
+rnd_forest_predicted<-predict(rf.model, test)
+
+rmae(observed, rnd_forest_predicted, mean(train$poraba))
+mae(observed, rnd_forest_predicted)
+rmse(observed, rnd_forest_predicted, mean(train$poraba))
+mse(observed, rnd_forest_predicted)
+
+#k najbližjih sosedov
+library(kknn)
+knn.model<-kknn(poraba~.,train, test, k=5)
+knn.model
+knn_predicted<-fitted(knn.model)
+rmae(observed, knn_predicted, mean(train$poraba))
+mae(observed, knn_predicted)
+rmse(observed, knn_predicted, mean(train$poraba))
+mse(observed, knn_predicted)
+
+
+#
+# nevronska mreža
+#
+install.packages("nnet")
+library(nnet)
+
+#
+# pomembno!!! 
+# za regresijo je potrebno nastaviti linout = T
+
+# zaradi nakljucne izbire zacetnih utezi bo vsakic nekoliko drugacen rezultat
+# ce zelimo ponovljiv model, nastavimo generator nakljucnih stevil
+
+set.seed(0)
+nn.model <- nnet(poraba ~ ., train, size = 5, decay = 0.0001, maxit = 10000, linout = T)
+predicted <- predict(nn.model, test)
+mae(test$poraba, predicted)
+rmae(test$poraba, predicted, mean(train$poraba))
+
+
+######################################################
+###################4.EVALVACIJA#######################
+######################################################
+
+podatki <- celotni_podatki
+options(warn=-1)
+
+podatki$datum<-NULL
+#razdelim podatke na tiste kateri bodo ustrezali regresiji in tisti ki bodo ustrezali klasifikacija
+podatkiK<-podatki
+podatkiR<-podatki
+
+podatkiK$poraba<-NULL
+podatkiR$norm_poraba<-NULL
+
+#najprej uporabim wrapper da dobim najboljso podmnožico na kateri bom naprej delal
+#wrapper za klasifikacijo
+source("wrapper.R.txt")
+
+myTrainFunc <- function(formula, traindata)
+{
+  rpart(formula, traindata)	
+}
+
+
+#
+# Funkcija za pridobivanje napovedi modela (razredi)
+#
+
+myPredictFunc <- function(model, testdata)
+{
+  predict(model, testdata, type="class")
+}
+
+
+#
+# Atribute lahko izberemo glede na klasifikacijsko tocnost modela
+#
+
+myEvalFunc <- function(predicted, observed, trained)
+{
+  # vracamo napako modela, saj wrapper minimizira vrednost ocene
+  1.0 - mean(observed == predicted)	
+}
+mae <- function(obs, pred)
+{
+  mean(abs(obs - pred))
+}
+
+mse <- function(obs, pred)
+{
+  mean((obs - pred)^2)
+}
+
+
+rmae <- function(observed, predicted, mean.val){  #rmae je mera za ocenjevanje učenja v regresiji
+  sum(abs(observed-predicted))/sum(abs(observed-mean.val))
+}
+
+rmse <- function(obs, pred, mean.val) #rmse relativna srednja kvadratna napaka
+{  
+  sum((obs - pred)^2)/sum((obs - mean.val)^2)
+}
+set.seed(0)
+
+library(CORElearn)
+
+sort(attrEval(poraba~.,train, "MSEofMean"),decreasing = TRUE)
+
+
+podatkiR$temp_zraka <-NULL
+podatkiR$oblacnost <-NULL
+podatkiR$pritisk <-NULL
+podatkiR$padavine <-NULL
+podatkiR$hitrost_vetra <-NULL
+podatkiR$regija <-NULL
+podatkiR$smer_vetra <-NULL
+
+#REGRESIJA
+for(i in 2:12){
+  
+  sel <- podatkiR$mesec < i
+  train<- podatkiR[sel,]
+  
+  sel <- podatkiR$mesec == i
+  test<- podatkiR[sel,]
+  
+  meanVal <- mean(train$poraba)
+  meanVal
+  
+  predTrivial <- rep(meanVal, nrow(test))
+  
+  observed<-test$poraba
+  head(observed)
+  
+  mae(observed, predTrivial)
+  mse(observed, predTrivial)
+  options(scipen=999)
+  
+  #regresijsko drevo
+  library(rpart)
+  library(rpart.plot)
+  rt.model<-rpart(poraba~.,data=train)
+  rpart.plot(rt.model)
+  reg_tree_predicted<-predict(rt.model, test)
+  izpis<- i
+  izpis<- c(izpis,rmae(observed, reg_tree_predicted, mean(train$poraba)))
+  izpis <- c(izpis,mae(observed, reg_tree_predicted))
+  izpis <- c(izpis,rmse(observed, reg_tree_predicted, mean(train$poraba)))
+  izpis <- c(izpis,mse(observed, reg_tree_predicted))
+  izpis<- round(izpis,4)
+  names(izpis) <- c("Mesec","rmae", "mae", "rmse", "mse")
+  print(izpis)
+  
+  #random forest
+  library(randomForest)
+  rf.model<-randomForest(poraba~., train, ntree=10, norm.votes=FALSE)
+  rf.model
+  rnd_forest_predicted<-predict(rf.model, test)
+  izpis<- i
+  izpis<-c(izpis,rmae(observed, rnd_forest_predicted, mean(train$poraba)))
+  izpis <- c(izpis,mae(observed, rnd_forest_predicted))
+  izpis <- c(izpis,rmse(observed, rnd_forest_predicted, mean(train$poraba)))
+  izpis <- c(izpis, mse(observed, rnd_forest_predicted))
+  izpis<- round(izpis,4)
+  names(izpis) <- c("Mesec","rmae", "mae", "rmse", "mse")
+  print(izpis)
+  
+  #k najbližjih sosedov
+  library(kknn)
+  knn.model<-kknn(poraba~.,train, test, k=5)
+  knn.model
+  knn_predicted<-fitted(knn.model)
+  izpis<- i
+  izpis<-c(izpis,rmae(observed, knn_predicted, mean(train$poraba)))
+  izpis <- c(izpis,mae(observed, knn_predicted))
+  izpis <- c(izpis,rmse(observed, knn_predicted, mean(train$poraba)))
+  izpis <- c(izpis,mse(observed, knn_predicted))
+  izpis<- round(izpis,4)
+  names(izpis) <- c("Mesec","rmae", "mae", "rmse", "mse")
+  print(izpis)
+  
+}
+
+
+
+#KLASIFIKACIJA
+set.seed(0)
+wrapper(norm_poraba ~ ., podatkiK, myTrainFunc, myPredictFunc, myEvalFunc, cvfolds=10)#rezultat je:
+#best model: estimated error =  0.5242885 
+#selected feature subset:
+#norm_poraba ~ leto_izgradnje + povrsina + namembnost + ura + regija + temp_zraka + temp_rosisca + oblacnost + padavine + pritisk
+
+podatkiK$regija<-NULL
+podatkiK$stavba<-NULL
+podatkiK$smer_vetra<-NULL
+podatkiK$hitrost_vetra<-NULL
+podatkiK$letni_cas<-NULL
+podatkiK$vikend<-NULL
+podatkiK$letni_cas<-NULL
+
+CA <- function(prave, napovedane)
+{
+  t <- table(prave, napovedane)
+  
+  sum(diag(t)) / sum(t)
+}
+set.seed(0)
+for(i in 2:12){
+  
+  sel <- podatkiK$mesec < i
+  train<- podatkiK[sel,]
+  
+  sel <- podatkiK$mesec == i
+  test<- podatkiK[sel,]
+  
+  table(test$norm_poraba)
+  vec_klas<-(i)
+  vec_klas<-c(vec_klas,sum(test$norm_poraba=="SREDNJA") / length(test$norm_poraba))
+  
+  
+  library(rpart)
+  
+  dt<- rpart(norm_poraba ~ ., data = train)
+  observed<-test$norm_poraba
+  predicted <- predict(dt, test, type = "class")
+  tab<-table(observed,predicted)
+  sum(diag(tab)) / sum(tab)
+  
+  CA(observed,predicted)
+  
+  library(CORElearn)
+  for (m in c("tree", "rf", "knn", "bayes"))
+  {
+    obj <- CoreModel(norm_poraba ~ ., train, model=m)
+    
+    predicted <- predict(obj, test, type="class")
+    tab <- table(observed, predicted)
+    vec_klas <- c(vec_klas, sum(diag(tab))/sum(tab))
+    
+    
+  }
+  names(vec_klas) <- c("Mesec","VecKlas", "tree", "randf", "knn", "bayes")
+  print(vec_klas)
+}

@@ -1,0 +1,2 @@
+"0","par(mfrow=c(2,2),las=1,cex=1.1,mar=c(2,3,3,3))"
+"0","hist(avgume1$`1`,freq=FALSE,ylim=c(0,0.2), main=""Življenska doba gum (1)"", xlab="""",ylab="""")"

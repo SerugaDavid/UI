@@ -1,0 +1,56 @@
+---
+title: "Seminarska_UI"
+author: "David Šeruga, Žan Hočevar"
+date: "4 12 2021"
+output: pdf_document
+---
+
+# Seminarska Naloga 1 <!-- {style="text-align: center;"} -->
+
+Umetna inteligenca
+
+David Šeruga, Žan Hočevar December 2021
+
+\newpage
+\tableofcontents
+
+## Uvod
+
+To je seminarska naloga v kateri bova predstavila uporabo strojnega učenja za gradnjo modelov, ki bodo napovedovali porabo električne energije in namembnosti stavb. V sklopu prve naloge bova naredila vizualizacijo podatkov, ki smo jih prejeli, v obliki grafov. Nato bova pogledala in ocenila najine atribute z različnimi algoritmi, ter dodala še nekaj svojih izpeljanih atributov. In ko imava pripravljene vse nove atribute in podatke, lahko uporabiva različne algoritme za gradnjo modelov. Ti bodo napovedovali tako kalsifikacijo kot regresijo. Po določeni napovedi, ki jo bomo naredili pa bova tudi testirala in ocenjevala kvaliteto napovedovanja.
+
+\newpage 
+
+## 1. Vizualizacija podaktov
+
+```{r, echo=FALSE}
+ucni_podatki <- read.table(file="ucnaSem1.txt", sep=",", header = TRUE)
+testni_podatki <- read.table(file="testnaSem1.txt", sep=",", header = TRUE)
+
+ucni_podatki$datum <- as.Date(ucni_podatki$datum, format = "%Y-%m-%d")
+ucni_podatki$regija <- as.factor(ucni_podatki$regija)
+ucni_podatki$namembnost <- as.factor(ucni_podatki$namembnost)
+ucni_podatki$oblacnost <- as.factor(ucni_podatki$oblacnost)
+
+testni_podatki$datum <- as.Date(testni_podatki$datum, format = "%Y-%m-%d")
+testni_podatki$regija <- as.factor(testni_podatki$regija)
+testni_podatki$namembnost <- as.factor(testni_podatki$namembnost)
+testni_podatki$oblacnost <- as.factor(testni_podatki$oblacnost)
+
+
+#############################################################################
+##############  NALOGA 1 - GRAFI ############################################
+#############################################################################
+
+# grafi priprava
+leta <- unique(ucni_podatki$leto_izgradnje)
+stavbe <- unique(ucni_podatki$stavba)
+leta_stavb <- apply(data.frame(stavbe), 1, function(x) ucni_podatki$leto_izgradnje[ucni_podatki$stavba == x][1])
+povprecja_stavb <- apply(data.frame(stavbe), 1, function(x) mean(ucni_podatki$poraba[ucni_podatki$stavba == x]))
+namembnost <- unique(ucni_podatki$namembnost)
+povprecja_namembnosti <- apply(data.frame(namembnost), 1, function(x) mean(ucni_podatki$poraba[ucni_podatki$namembnost == x]))
+
+```
+
+Spodaj bova analizirala podakte, tako da nariševa nekaj grafov, ki so se nama zdeli smiselni. Vsak graf bo imel tudi svoj opis.
+
+### 1.1 Povprečna poraba za vsako stavbo urejena po letih

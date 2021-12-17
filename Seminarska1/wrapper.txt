@@ -1,0 +1,20 @@
+> wrapper(norm_poraba ~ ., train, trainfn_tree, predictfn, evalfn, cvfolds=10)
+selected attribute:  stavba
+selected attribute:  ma7
+selected attribute:  vikend
+[1]    28131 killed     R
+# cvfolds sva morala zmanjšati, saj je z vrednostjo 10 potrebovala preveč RAM-a
+
+> wrapper(norm_poraba ~ ., train, trainfn_tree, predictfn, evalfn, cvfolds=2)
+best model: estimated error =  0.1741497 ,
+selected feature subset =  norm_poraba ~ stavba + ma7 + vikend + ura + temp_zraka
++ povrsina + leto_izgradnje + temp_rosisca
+
+> wrapper(norm_poraba ~ ., train, trainfn_bayes, predictfn, evalfn, cvfolds=10)
+best model: estimated error =  0.3318365 , selected feature subset =  norm_poraba
+~ stavba + ura + vikend + letni_cas + smer_vetra + padavine
+
+> wrapper(norm_poraba ~ ., train, trainfn_bayes, predictfnprob, evalbrier, cvfolds=10)
+best model: estimated error =  0.4820053 , selected feature subset =  norm_poraba
+~ stavba + ma7 + ura + vikend + povrsina + temp_rosisca + temp_zraka + oblacnost
++ namembnost + letni_cas + smer_vetra
